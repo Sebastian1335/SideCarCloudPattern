@@ -10,7 +10,7 @@ export class HelloController {
   async sayHello(): Promise<string> {
     // Envía una solicitud al sidecar en localhost:3001/monitor
     await lastValueFrom(
-      this.httpService.post('http://localhost:3001/monitor', {
+      this.httpService.post('http://localhost:4000/monitor', {
         message: 'Hello from Main Microservice!',
       })
     );
