@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());
 
@@ -24,12 +25,16 @@ app.get('/profile', (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.status(401).json({ error: 'Token no proporcionado' });
+  if (!token) {
+    console.log('Token no proporcionado en el user-service');
+    return res.status(401).json({ error: 'Token no proporcionado' }
+    )};
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     res.json({ profile: mockUser.profile });
   } catch (error) {
+    console.error('Error de token en user-service:', error.message);
     res.status(401).json({ error: 'Token inválido o expirado' });
   }
 });

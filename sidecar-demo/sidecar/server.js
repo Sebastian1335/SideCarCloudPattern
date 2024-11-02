@@ -10,35 +10,35 @@ const userServiceUrl = 'http://localhost:3002'; // URL del User Service
 
 app.post('/user-service/login', async (req, res) => {
   try {
-      // Aquí puedes incluir lógica adicional para manejar la autenticación
-      // Por ejemplo, validar las credenciales
-      const { username, password } = req.body;
-
-      // Aquí se simula un token de autenticación para el ejemplo
-      if (username === 'admin' && password === 'password') {
-          const token = 'Secreto';
-          res.json({ token }); // Retorna un token simulado
-          console.log(`Token enviado '${token}'`)
-      } else {
-          res.status(401).json({ message: 'Invalid credentials' });
-          console.log(`Se denegó un acceso`)
-      }
+      const response = await axios.post(`${userServiceUrl}/login`, req.body);
+      res.json(response.data);
+      console.log("se envio un token")
   } catch (error) {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(error.response?.status || 500).json({ message: error.response?.data || 'Internal Server Error' });
   }
 });
 
 
-app.get('/user-service/profile', (req, res) => {
-  const token = req.headers.authorization;
-  // Aquí debes validar el token y retornar el perfil correspondiente
-  if (token === 'Secreto') { // Simulando validación de token
-      res.json({ username: 'Sebastián', email: 'correo@servidor.com' });
-      console.log(`Solicitud de perfil realizada`)
-  } else {
-      res.status(401).json({ message: 'Unauthorized' });
-      console.log(`Solicitud de perfil denegada`)
+app.get('/user-service/profile', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token){
+    console.log('token no proporcionado en la solicitud de perfil');
+    return res.status(401).json({ message: 'Token no proporcionado' });
   }
+  try{
+    const response = await axios.get(`${userServiceUrl}/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    res.json(response.data)
+    console.log("Datos de perfil enviados")
+  } catch (error) {
+    console.error('Error al obtener el perfil desde user-service:', error.message);
+    res.status(error.response?.status || 500).json({ message: error.response?.data || 'Error al obtener el perfil' });
+    console.log("Solicitud de perfil denegada")
+  }
+
+
 });
 
 
