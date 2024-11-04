@@ -15,6 +15,7 @@ app.post('/login', (req, res) => {
   if (username === mockUser.username && password === mockUser.password) {
     const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
     res.json({ token });
+    console.log("token enviado a sidecar")
   } else {
     res.status(401).json({ error: 'Credenciales incorrectas' });
   }
@@ -33,6 +34,7 @@ app.get('/profile', (req, res) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     res.json({ profile: mockUser.profile });
+    console.log("Se envio perfil")
   } catch (error) {
     console.error('Error de token en user-service:', error.message);
     res.status(401).json({ error: 'Token inválido o expirado' });
